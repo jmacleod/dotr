@@ -1,6 +1,10 @@
 import random
 import unittest
 import dotr
+from StateMachine.StateMachine import StateMachine
+from StateMachine.InputAction import InputAction
+from StateMachine.State import State
+from StateMachine.GameStates import GameStates
 
 class TestSequenceFunctions(unittest.TestCase):
 
@@ -59,11 +63,28 @@ class TestSequenceFunctions(unittest.TestCase):
 	print "Asserting that unused blue minions = 19 (" + str(len(game_data.unused_minions["blue"])) + ")"
         self.assertTrue(len(game_data.unused_minions["blue"]) == 18)
 
+    def test_game_ends_when_no_more_minions_to_place(self):
+	print "Test game ends when no more minions to place"
+	game_data = dotr.Game()
+	area = game_data.areas["Father Oak Forest"]
+	game_data.add_minion_to_area("blue", area)
+	game_data.add_minion_to_area("blue", area)
+	game_data.add_minion_to_area("blue", area)
+	area = game_data.areas["Father Oak Forest"]
+        self.assertRaises(SystemExit)
+
+    def test_state_machine(self):
+        test = [InputAction("draw ds card"),InputAction("execute ds card")]
+        print "TEST: " + str(test)
+        for i in test:
+            print "\t\t\tMOVE: " + i.action
+            GameStates().runAll(test)
 # test over run
 # test crystal placement
 # test game ends when out of minions of a color, and a new one is attempted to be placed (we mightbe doing this wrong in the code)
 # test game ends when out of crystals
 # test monarch city can get up to 5 minions, game ends when at 5 or maybe when one more than 5 attempts to get placed
+# test you can;t place minions in inns, especially with overruns
 
 #
 #
@@ -99,3 +120,4 @@ class TestSequenceFunctions(unittest.TestCase):
 #
 if __name__ == '__main__':
     unittest.main()
+

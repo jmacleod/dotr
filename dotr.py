@@ -1,5 +1,7 @@
 import sys
 import collections
+import StateMachine.GameStates 
+import StateMachine.InputAction
 
 colors = ['red','green','blue','black','purple']
 
@@ -50,12 +52,7 @@ class Area:
 			raise AttributeError
 
 
-class StateMachine:
-	def __init__(self):
-		self.day_phase = collections.deque(['day','evening','night'],maxlen=3)
-		#self.day_phase.rotate(-1) to rotate through and 0th element can be current maybe make its own function to encapsulate this
-		self.allowed_actions=None
-		self.player_list = None
+
 		# allowed actions for day
 			# move
 			# fight minions
@@ -69,6 +66,11 @@ class StateMachine:
 			# discard down to hand limit (10)
 			# play special cards (instants that can be played any time)
 		# allowed actions night
+# darkness spreads procedure
+# 1. Advance to darkenss spreads in turn data
+# 2. Draw card (pop from deck)
+# 3. do actions on card
+# 4. discard card (put in pile)
 			# done (moves to next phase) But only after darkness spreads tasks
 			# show board
 			# take correct number of cards and do correct actions on them
@@ -165,51 +167,51 @@ class Game:
 	def initialize_areas(self):
 		#Eventually make this read in from config file?
 		self.areas = dict()
-		self.areas['Amarak Peak']      = Area('Amarak Peak','blue')
-		self.areas['Ancient Ruins']      = Area('Ancient Ruins','red')
-		self.areas['Angel Tear Falls']   = Area('Angel Tear Falls','black')
-		self.areas['Blizzard Mountains']      = Area('Blizzard Mountains','blue')
-		self.areas['Blood Flats']      = Area('Blood Flats','red')
-		self.areas['Bounty Bay']         = Area('Bounty Bay','blue',treasure_chest=True)
-		self.areas['Brookdale Village']      = Area('Brookdale Village','black')
-		self.areas['Chimera Inn']      = Area('Chimera Inn','purple')
-		self.areas['Crystal Hills']      = Area('Crystal Hills','blue')
+		self.areas['Amarak Peak']         = Area('Amarak Peak','blue')
+		self.areas['Ancient Ruins']       = Area('Ancient Ruins','red')
+		self.areas['Angel Tear Falls']    = Area('Angel Tear Falls','black')
+		self.areas['Blizzard Mountains']  = Area('Blizzard Mountains','blue')
+		self.areas['Blood Flats']         = Area('Blood Flats','red')
+		self.areas['Bounty Bay']          = Area('Bounty Bay','blue',treasure_chest=True)
+		self.areas['Brookdale Village']   = Area('Brookdale Village','black')
+		self.areas['Chimera Inn']         = Area('Chimera Inn','purple')
+		self.areas['Crystal Hills']       = Area('Crystal Hills','blue')
 		self.areas['Cursed Plateau']      = Area('Cursed Plateau','red')
-		self.areas['Dancing Stones']     = Area('Dancing Stones','black',gateway=True)
-		self.areas['Dragons Teeth Range']      = Area('Dragons Teeth Range','blue')
-		self.areas['Dark Woods']      = Area('Dark Woods','black')
+		self.areas['Dancing Stones']      = Area('Dancing Stones','black',gateway=True)
+		self.areas['Dark Woods']          = Area('Dark Woods','black')
+		self.areas['Dragons Teeth Range'] = Area('Dragons Teeth Range','blue')
 		self.areas['Eagle Nest Inn']      = Area('Eagle Nest Inn','purple')
-		self.areas['Eagle Peak Pass']      = Area('Eagle Peak Pass','blue')
-		self.areas['Enchanted Glade']      = Area('Enchanted Glade','black')
-		self.areas['Father Oak Forest']  = Area('Father Oak Forest','green')
-		self.areas['Fire River']      = Area('Fire River','black')
-		self.areas['Ghost Marsh']      = Area('Ghost Marsh','red')
-		self.areas['Golden Oak Forest']      = Area('Golden Oak Forest','green')
-		self.areas['Greenleaf Village'] = Area('Greenleaf Village','green') 
+		self.areas['Eagle Peak Pass']     = Area('Eagle Peak Pass','blue')
+		self.areas['Enchanted Glade']     = Area('Enchanted Glade','black')
+		self.areas['Father Oak Forest']   = Area('Father Oak Forest','green')
+		self.areas['Fire River']          = Area('Fire River','black')
+		self.areas['Ghost Marsh']         = Area('Ghost Marsh','red')
+		self.areas['Golden Oak Forest']   = Area('Golden Oak Forest','green')
+		self.areas['Greenleaf Village']   = Area('Greenleaf Village','green') 
 		self.areas['Gryphon Forest']      = Area('Gryphon Forest','green')
-		self.areas['Gryphon Inn']      = Area('Gryphon Inn','purple')
-		self.areas['Heavens Glade']      = Area('Heavens Glade','green')
-		self.areas['Land of Amazons']      = Area('Land of Amazons','black',treasure_chest=True)
-		self.areas['Mccorm Highlands']      = Area('Mccorm Highlands','black',treasure_chest=True)
+		self.areas['Gryphon Inn']         = Area('Gryphon Inn','purple')
+		self.areas['Heavens Glade']       = Area('Heavens Glade','green')
+		self.areas['Land of Amazons']     = Area('Land of Amazons','black',treasure_chest=True)
+		self.areas['Mccorm Highlands']    = Area('Mccorm Highlands','black',treasure_chest=True)
 		self.areas['Mermaid Harbor']      = Area('Mermaid Harbor','black',treasure_chest=True)
-		self.areas['Minotaur Forest']      = Area('Minotaur Forest','green')
-		self.areas['Monarch City']       = Area('Monarch City','purple',treasure_chest=True)
-		self.areas['Mountains of Mist']      = Area('Mountains of Mist','blue')
-		self.areas['Orc Valley']         = Area('Orc Valley','red')
-		self.areas['Pleasant Hill']      = Area('Pleasant Hill','red',treasure_chest=True)
-		self.areas['Raven Forest']      = Area('Raven Forest','green')
-		self.areas['Rock Bridge Pass']      = Area('Rock Bridge Pass','blue')
-		self.areas['Scorpion Canyon']      = Area('Scorpion Canyon','red')
-		self.areas['Seabird Port']      = Area('Seabird Port','black',treasure_chest=True)
+		self.areas['Minotaur Forest']     = Area('Minotaur Forest','green')
+		self.areas['Monarch City']        = Area('Monarch City','purple',treasure_chest=True)
+		self.areas['Mountains of Mist']   = Area('Mountains of Mist','blue')
+		self.areas['Orc Valley']          = Area('Orc Valley','red')
+		self.areas['Pleasant Hill']       = Area('Pleasant Hill','red',treasure_chest=True)
+		self.areas['Raven Forest']        = Area('Raven Forest','green')
+		self.areas['Rock Bridge Pass']    = Area('Rock Bridge Pass','blue')
+		self.areas['Scorpion Canyon']     = Area('Scorpion Canyon','red')
+		self.areas['Seabird Port']        = Area('Seabird Port','black',treasure_chest=True)
 		self.areas['Seagull Lagoon']      = Area('Seagull Lagoon','blue')
-		self.areas['Serpent Swamp']      = Area('Serpent Swamp','red')
-		self.areas['Thorny Woods']      = Area('Thorny Woods','green')
+		self.areas['Serpent Swamp']       = Area('Serpent Swamp','red')
+		self.areas['Thorny Woods']        = Area('Thorny Woods','green')
 		self.areas['Unicorn Forest']      = Area('Unicorn Forest','green')
-		self.areas['Whispering Woods']      = Area('Whispering Woods','green')
+		self.areas['Whispering Woods']    = Area('Whispering Woods','green')
 		self.areas['Withered Hills']      = Area('Withered Hills','red')
-		self.areas['Windy Pass']      = Area('Windy Pass','red')
-		self.areas['Wolf Pass']          = Area('Wolf Pass','blue')
-		self.areas['Wyvern Forest']      = Area('Wyvern Forest','green')
+		self.areas['Windy Pass']          = Area('Windy Pass','red')
+		self.areas['Wolf Pass']           = Area('Wolf Pass','blue')
+		self.areas['Wyvern Forest']       = Area('Wyvern Forest','green')
 
 		self.areas['Amarak Peak'].neighbors   = [self.areas['Eagle Peak Pass'],
 								self.areas['Mccorm Highlands'],
@@ -240,14 +242,40 @@ class Game:
 								self.areas['Father Oak Forest'],
 								self.areas['Pleasant Hill']]
 		self.areas['Chimera Inn'].neighbors     = [self.areas['Withered Hills']]
+		self.areas['Crystal Hills'].neighbors     = [self.areas['Withered Hills'],
+								self.areas['Fire River'],
+								self.areas['Mermaid Harbor'],
+								self.areas['Wyvern Forest']]
+		self.areas['Cursed Plateau'].neighbors     = [self.areas['Withered Hills'],
+								self.areas['Land of Amazons'],
+								self.areas['Wyvern Forest']]
 		self.areas['Dancing Stones'].neighbors     = [self.areas['Monarch City'],
 								self.areas['Orc Valley'],
 								self.areas['Greenleaf Village']]
+		self.areas['Dark Woods'].neighbors  = [self.areas['Windy Pass'],
+								self.areas['Golden Oak Forest']]
+		self.areas['Dragons Teeth Range'].neighbors  = [self.areas['Angel Tear Falls']]
+		self.areas['Eagle Nest Inn'].neighbors     = [self.areas['Enchanted Glade']]
+		self.areas['Eagle Peak Pass'].neighbors  = [self.areas['Orc Valley'],
+								self.areas['Amarak Peak'],
+								self.areas['Whispering Woods']]
+		self.areas['Enchanted Glade'].neighbors  = [self.areas['Eagle Nest Inn'],
+								self.areas['Rock Bridge Pass'],
+								self.areas['Unicorn Forest']]
 		self.areas['Father Oak Forest'].neighbors  = [self.areas['Monarch City'],
 								self.areas['Wolf Pass']]
+		self.areas['Fire River'].neighbors = [self.areas['Angel Tear Falls'],
+								self.areas['Mermaid Harbor'],
+								self.areas['Crystal Hills']]
+		self.areas['Ghost Marsh'].neighbors = [self.areas['Amarak Peak']]
+		self.areas['Golden Oak Forest'].neighbors = [self.areas['Dark Woods'],
+								self.areas['Rock Bridge Pass']]
 		self.areas['Greenleaf Village'].neighbors = [self.areas['Monarch City'],
 								self.areas['Dancing Stones'],
 								self.areas['Bounty Bay']]
+		self.areas['Gryphon Forest'].neighbors = [self.areas['Seagull Lagoon'],
+								self.areas['Serpent Swamp'],
+								self.areas['Gryphon Inn']]
 		self.areas['Monarch City'].neighbors       = [self.areas['Father Oak Forest'],
 								self.areas['Wolf Pass'],
 								self.areas['Orc Valley'],
