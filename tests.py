@@ -4,7 +4,7 @@ import dotr
 from StateMachine.StateMachine import StateMachine
 from StateMachine.InputAction import InputAction
 from StateMachine.State import State
-from StateMachine.GameStates import GameStates
+from GameStates import GameStates
 
 class TestSequenceFunctions(unittest.TestCase):
 
@@ -72,6 +72,13 @@ class TestSequenceFunctions(unittest.TestCase):
 	game_data.add_minion_to_area("blue", area)
 	area = game_data.areas["Father Oak Forest"]
         self.assertRaises(SystemExit)
+
+    def test_ds_cards(self):
+	print "Test darkness spreads cards"
+	game_data = dotr.Game()
+	ds_card = game_data.ds_cards[0]
+	ds_card.display()
+	assert(ds_card.general == game_data.generals["Gorgutt"])
 
     def test_state_machine(self):
         test = [InputAction("draw ds card"),InputAction("execute ds card")]

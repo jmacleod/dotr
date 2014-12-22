@@ -10,9 +10,11 @@ war_status = ['early','mid','mid','late']
 
 		
 class DarknessSpreadsCard:
-	def __init__(self, area1, area1_color, area1_count, area2, area2_color,
-		area2_count, general, general_move_to_area, general_minion_count,
-		general_minion_color, special_actions):
+	def __init__(self, area1 = False, area1_color = False, area1_count = 0, 
+		area2 = False, area2_color = False, area2_count = 0, 
+		general = False, general_move_to_area = False, 
+		general_minion_color = False, general_minion_count = 0, 
+		special_actions = False):
 
 		self.general = general
 		self.general_move_to_area = general_move_to_area
@@ -26,19 +28,23 @@ class DarknessSpreadsCard:
 		self.area2_count = area2_count
 		self.special_actions = special_actions
 
+	def display(self):
+		print self.area1.name  + ": " + str(self.area1_count) + " " + self.area1_color
+		print self.area2.name  + ": " + str(self.area2_count) + " " + self.area2_color
+		print self.general.name  + ": " + self.general_move_to_area.name + " " + str(self.general_minion_count) + " " + self.general_minion_color
+
 	def execute(self):
 		if self.special_actions != False:
 			for action in self.special_actions:
 				action
-		else:
-			for x in range (0, self.area1_count):
-				add_minion_to_area(self.area1_color, self.area1)
-			for x in range (0, self.area2_count):
-				add_minion_to_area(self.area2_color, self.area2)
-			if (general and general.able_to_move()):
-				general.move(self.general_move_to_area)
-				for x in range (0, self.general_minion_count):
-					add_minion_to_area(self.general_minion_color ,self.general_move_to_area)
+		for x in range (0, self.area1_count):
+			add_minion_to_area(self.area1_color, self.area1)
+		for x in range (0, self.area2_count):
+			add_minion_to_area(self.area2_color, self.area2)
+		if (self.general):
+			self.general.move(self.general_move_to_area)
+			for x in range (0, self.general_minion_count):
+				add_minion_to_area(self.general_minion_color ,self.general_move_to_area)
 		
 
 class General:
@@ -52,6 +58,8 @@ class General:
 		location.general.add(self)
 
 	def move(self, move_to_area):
+		if (self.able_to_move() == False):
+			return
 		if (move_to_area == "Any"):
 			self.location.general = False #TODO, maybe fix this to work as list in case 2 generals in dame location?
 			self.location = path[path.index(location) +1]
@@ -175,6 +183,7 @@ class Game:
 		
 		self.areas         = None
 
+		self.ds_cards = list()
 		self.ds_deck = None
 		self.hc_deck = None
 		self.qc_deck = None
@@ -185,6 +194,7 @@ class Game:
 		self.initialize_areas()
 		self.initialize_crystals()
 		self.initialize_generals()
+		self.initialize_ds_cards()
 
 	def dump_game_data(self):
 		print "Unused Minions:"
@@ -225,8 +235,87 @@ class Game:
 		self.generals["Sapphire"] = General(self.areas["Blizzard Mountains"],sapphire_path,"Sapphire",4,0)
 		self.generals["Varkolak"] = General(self.areas["Dark Woods"],varkolak_path,"Varkolak",5,0)
 		self.generals["Gorgutt"] = General(self.areas["Thorny Woods"],gorgutt_path,"Gorgutt",6,2)
-		self.generals["Blazarg"] = General(self.areas["Scorpion Canyon"],balazarg_path,"Balazarg",6,1)
+		self.generals["Balazarg"] = General(self.areas["Scorpion Canyon"],balazarg_path,"Balazarg",6,1)
 
+	def initialize_ds_cards(self):
+		#areas and generals and minions must be initialized first
+		self.ds_cards = [DarknessSpreadsCard(self.areas["Windy Pass"], "red", 2, 
+							self.areas["Raven Forest"], "green", 1,
+							self.generals["Gorgutt"],self.areas["Orc Valley"],
+							"green", 2, False),
+				DarknessSpreadsCard(self.areas["Cursed Plateau"], "red", 1,
+							self.areas["Golden Oak Forest"], "green", 2,
+							self.generals["Gorgutt"],self.areas["Amarak Peak"],
+							"green", 2, False),
+				DarknessSpreadsCard(self.areas["Blood Flats"], "red", 2,
+							self.areas["Greenleaf Village"], "green", 1,
+							self.generals["Varkolak"],self.areas["Seabird Port"],
+							"black", 2, False),
+				DarknessSpreadsCard(self.areas["Pleasant Hill"], "red", 1,
+							self.areas["Minotaur Forest"], "green", 2,
+							self.generals["Varkolak"],self.areas["Father Oak Forest"],
+							"black", 1, False),
+				DarknessSpreadsCard(self.areas["Bounty Bay"], "blue", 2,
+							self.areas["Brookdale Village"], "black", 2,
+							self.generals["Sapphire"],self.areas["Greenleaf Village"],
+							"blue", 1, False),
+				DarknessSpreadsCard(self.areas["Rock Bridge Pass"], "blue", 1,
+							self.areas["Dark Woods"], "black", 1,
+							self.generals["Balazarg"],self.areas["Bounty Bay"],
+							"red", 1, False),
+				DarknessSpreadsCard(self.areas["Cursed Plateau"], "red", 2,
+							self.areas["Fire River"], "black", 2,
+							self.generals["Balazarg"],self.areas["Bounty Bay"],
+							"red", 2, False),
+
+				DarknessSpreadsCard(self.areas["Wyvern Forest"], "green", 2,
+							self.areas["Seabird Port"], "black", 2,
+							self.generals["Sapphire"],self.areas["Heavens Glade"],
+							"blue", 1, False),
+				DarknessSpreadsCard(self.areas["Unicorn Forest"], "green", 2,
+							self.areas["Crystal Hills"], "blue", 2,
+							self.generals["Gorgutt"],"Any",
+							"green", 2, False),
+				DarknessSpreadsCard(False, False, 0,
+							False, False, 0,
+							self.generals["Sapphire"],self.areas["Monarch City"],
+							"blue", 0, self.orc_war_party),
+				DarknessSpreadsCard(self.areas["Rock Bridge Pass"], "blue", 2,
+							self.areas["Angel Tear Falls"], "black", 1,
+							self.generals["Balazarg"],self.areas["Angel Tear Falls"],
+							"red", 2, False),
+				DarknessSpreadsCard(self.areas["Minotaur Forest"], "green", 2,
+							self.areas["Land of Amazons"], "black", 1,
+							self.generals["Balazarg"],"Any",
+							"red", 1, False),
+				DarknessSpreadsCard(self.areas["Wolf Pass"], "blue", 1,
+							self.areas["Dancing Stone"], "black", 1,
+							self.generals["Gorgutt"],self.areas["Monarch City"],
+							"green", 0, False),
+				DarknessSpreadsCard(self.areas["Blood Flats"], "red", 1,
+							self.areas["Bounty Bay"], "blue", 1,
+							self.generals["Gorgutt"],self.areas["Amarak Peak"],
+							"green", 2, False),
+
+				DarknessSpreadsCard(self.areas["Ancient Ruins"], "red", 2,
+							self.areas["Eagle Peak Pass"], "blue", 2,
+							self.generals["Sapphire"],self.areas["Heavens Glade"],
+							"blue", 1, False),
+				]
+
+	def orc_war_party(self):
+		print "ORC WAR PARTY!!!!!!"
+		for area in self.areas:
+			if len(self.areas[area].minons) == 1 and self.areas[area].minons[0].color == "green":
+				print "\t\t Adding orc to " + area
+				add_minion_to_area("green", self.areas[area])
+
+	def orc_patrols(self):
+		print "ORC PATROL!!!!!!!"
+		for area in self.areas:
+			if len(self.areas[area].minons) == 0 and self.areas[area].color == "green":
+				print "\t\t Adding orc to " + area
+				add_minion_to_area("green", self.areas[area])
 
 	def initialize_areas(self):
 		#Eventually make this read in from config file?
@@ -241,7 +330,7 @@ class Game:
 		self.areas['Chimera Inn']         = Area('Chimera Inn','purple')
 		self.areas['Crystal Hills']       = Area('Crystal Hills','blue')
 		self.areas['Cursed Plateau']      = Area('Cursed Plateau','red')
-		self.areas['Dancing Stones']      = Area('Dancing Stones','black',gateway=True)
+		self.areas['Dancing Stone']      = Area('Dancing Stone','black',gateway=True)
 		self.areas['Dark Woods']          = Area('Dark Woods','black')
 		self.areas['Dragons Teeth Range'] = Area('Dragons Teeth Range','blue')
 		self.areas['Eagle Nest Inn']      = Area('Eagle Nest Inn','purple')
@@ -272,8 +361,8 @@ class Game:
 		self.areas['Thorny Woods']        = Area('Thorny Woods','green')
 		self.areas['Unicorn Forest']      = Area('Unicorn Forest','green')
 		self.areas['Whispering Woods']    = Area('Whispering Woods','green')
-		self.areas['Withered Hills']      = Area('Withered Hills','red')
 		self.areas['Windy Pass']          = Area('Windy Pass','red')
+		self.areas['Withered Hills']      = Area('Withered Hills','red')
 		self.areas['Wolf Pass']           = Area('Wolf Pass','blue')
 		self.areas['Wyvern Forest']       = Area('Wyvern Forest','green')
 
@@ -313,7 +402,7 @@ class Game:
 		self.areas['Cursed Plateau'].neighbors     = [self.areas['Withered Hills'],
 								self.areas['Land of Amazons'],
 								self.areas['Wyvern Forest']]
-		self.areas['Dancing Stones'].neighbors     = [self.areas['Monarch City'],
+		self.areas['Dancing Stone'].neighbors     = [self.areas['Monarch City'],
 								self.areas['Orc Valley'],
 								self.areas['Greenleaf Village']]
 		self.areas['Dark Woods'].neighbors  = [self.areas['Windy Pass'],
@@ -335,29 +424,90 @@ class Game:
 		self.areas['Golden Oak Forest'].neighbors = [self.areas['Dark Woods'],
 								self.areas['Rock Bridge Pass']]
 		self.areas['Greenleaf Village'].neighbors = [self.areas['Monarch City'],
-								self.areas['Dancing Stones'],
+								self.areas['Dancing Stone'],
+								self.areas['Ancient Ruins'],
+								self.areas['Mountains of Mist'],
 								self.areas['Bounty Bay']]
 		self.areas['Gryphon Forest'].neighbors = [self.areas['Seagull Lagoon'],
 								self.areas['Serpent Swamp'],
 								self.areas['Gryphon Inn']]
+		self.areas['Gryphon Inn'].neighbors = [self.areas['Gryphon Forest']]
+		self.areas['Heavens Glade'].neighbors = [self.areas['Thorny Woods'],
+								self.areas['Blizzard Mountains'],
+								self.areas['Ancient Ruins'],
+								self.areas['Whispering Woods']]
+		self.areas['Land of Amazons'].neighbors = [self.areas['Mountains of Mist'],
+								self.areas['Cursed Plateau'],
+								self.areas['Wyvern Forest'],
+								self.areas['Mermaid Harbor']]
+		self.areas['Mccorm Highlands'].neighbors = [self.areas['Serpent Swamp'],
+								self.areas['Amarak Peak']]
+		self.areas['Mermaid Harbor'].neighbors       = [self.areas['Bounty Bay'],
+								self.areas['Land of Amazons'],
+								self.areas['Wyvern Forest'],
+								self.areas['Crystal Hills'],
+								self.areas['Fire River']]
+		self.areas['Minotaur Forest'].neighbors = [self.areas['Seagull Lagoon'],
+								self.areas['Wolf Pass']]
 		self.areas['Monarch City'].neighbors       = [self.areas['Father Oak Forest'],
 								self.areas['Wolf Pass'],
 								self.areas['Orc Valley'],
-								self.areas['Dancing Stones'],
+								self.areas['Dancing Stone'],
 								self.areas['Greenleaf Village'],
 								self.areas['Bounty Bay']]
+		self.areas['Mountains of Mist'].neighbors = [self.areas['Greenleaf Village'],
+								self.areas['Land of Amazons'],
+								self.areas['Withered Hills']]
 		self.areas['Orc Valley'].neighbors         = [self.areas['Monarch City'],
 								self.areas['Wolf Pass'],
-								self.areas['Dancing Stones']]
+								self.areas['Dancing Stone']]
 		self.areas['Pleasant Hill'].neighbors      = [self.areas['Angel Tear Falls'],
 								self.areas['Father Oak Forest']]
 		self.areas['Raven Forest'].neighbors       = [self.areas['Scorpion Canyon'],
 								self.areas['Blood Flats'],
 								self.areas['Pleasant Hill'],
 								self.areas['Angel Tear Falls']]
+		self.areas['Rock Bridge Pass'].neighbors       = [self.areas['Golden Oak Forest'],
+								self.areas['Windy Pass'],
+								self.areas['Seabird Port'],
+								self.areas['Brookdale Village'],
+								self.areas['Enchanted Glade']]
+		self.areas['Scorpion Canyon'].neighbors      = [self.areas['Raven Forest'],
+								self.areas['Blood Flats']]
+		self.areas['Seabird Port'].neighbors       = [self.areas['Father Oak Forest'],
+								self.areas['Brookdale Village'],
+								self.areas['Rock Bridge Pass'],
+								self.areas['Windy Pass']]
+		self.areas['Seagull Lagoon'].neighbors      = [self.areas['Minotaur Forest'],
+								self.areas['Gryphon Forest'],
+								self.areas['Wolf Pass']]
+		self.areas['Serpent Swamp'].neighbors      = [self.areas['Gryphon Forest'],
+								self.areas['Mccorm Highlands']]
+		self.areas['Thorny Woods'].neighbors      = [self.areas['Heavens Glade'],
+								self.areas['Amarak Peak']]
+		self.areas['Unicorn Forest'].neighbors      = [self.areas['Enchanted Glade'],
+								self.areas['Brookdale Village'],
+								self.areas['Blood Flats']]
+		self.areas['Whispering Woods'].neighbors       = [self.areas['Heavens Glade'],
+								self.areas['Ancient Ruins'],
+								self.areas['Dancing Stone'],
+								self.areas['Eagle Peak Pass']]
+		self.areas['Windy Pass'].neighbors          = [self.areas['Dark Woods'],
+								self.areas['Rock Bridge Pass'],
+								self.areas['Seabird Port']]
+		self.areas['Withered Hills'].neighbors       = [self.areas['Blizzard Mountains'],
+								self.areas['Chimera Inn'],
+								self.areas['Mountains of Mist'],
+								self.areas['Eagle Peak Pass']]
 		self.areas['Wolf Pass'].neighbors          = [self.areas['Monarch City'],
 								self.areas['Father Oak Forest'],
+								self.areas['Seagull Lagoon'],
+								self.areas['Minotaur Forest'],
 								self.areas['Orc Valley']]
+		self.areas['Wyvern Forest'].neighbors          = [self.areas['Crystal Hills'],
+								self.areas['Mermaid Harbor'],
+								self.areas['Land of Amazons'],
+								self.areas['Cursed Plateau']]
 
 	def overrun_area(self,color,area):
 		print "An overrun was triggered in " + area.name + " || color (" + color + ")"
