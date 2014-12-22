@@ -78,7 +78,7 @@ class TestSequenceFunctions(unittest.TestCase):
         print "TEST: " + str(test)
         for i in test:
             print "\t\t\tMOVE: " + i.action
-            GameStates().runAll(test)
+        GameStates().runAll(test)
 # test over run
 # test crystal placement
 # test game ends when out of minions of a color, and a new one is attempted to be placed (we mightbe doing this wrong in the code)

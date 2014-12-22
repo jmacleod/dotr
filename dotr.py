@@ -8,17 +8,72 @@ colors = ['red','green','blue','black','purple']
 war_status = ['early','mid','mid','late']
 
 
+		
 class DarknessSpreadsCard:
-	def __init__(self , actions):
-		self.actions = actions
+	def __init__(self, area1, area1_color, area1_count, area2, area2_color,
+		area2_count, general, general_move_to_area, general_minion_count,
+		general_minion_color, special_actions):
+
+		self.general = general
+		self.general_move_to_area = general_move_to_area
+		self.general_minion_count = general_minion_count
+		self.general_minion_color = general_minion_color
+		self.area1 = area1
+		self.area1_color = area1_color
+		self.area1_count = area1_count
+		self.area2 = area2
+		self.area2_color = area2_color
+		self.area2_count = area2_count
+		self.special_actions = special_actions
+
+	def execute(self):
+		if self.special_actions != False:
+			for action in self.special_actions:
+				action
+		else:
+			for x in range (0, self.area1_count):
+				add_minion_to_area(self.area1_color, self.area1)
+			for x in range (0, self.area2_count):
+				add_minion_to_area(self.area2_color, self.area2)
+			if (general and general.able_to_move()):
+				general.move(self.general_move_to_area)
+				for x in range (0, self.general_minion_count):
+					add_minion_to_area(self.general_minion_color ,self.general_move_to_area)
+		
 
 class General:
-	def __init__(self, location, name, hits):
+	def __init__(self, location, path, name, hits, wounded_hits):
 		self.location = location
+		self.path = path
 		self.name = name
 		self.total_hits = hits
+		self.wounded_hits = wounded_hits
 		self.remaining_hits = hits
 		location.general.add(self)
+
+	def move(self, move_to_area):
+		if (move_to_area == "Any"):
+			self.location.general = False #TODO, maybe fix this to work as list in case 2 generals in dame location?
+			self.location = path[path.index(location) +1]
+			self.location.general.append(self)
+		elif (move_to_area in path):
+			if (path.index(self.location) + 1 == path.index(move_to_area)):
+					self.location.general = False #TODO, maybe fix this to work as list in case 2 generals in dame location?
+					self.location = move_to_area
+					move_to_area.general.append(self)
+		else:
+			raise Exception("Trying to move a general somewhere?")
+			
+		if (self.location.name == "Monarch City"):
+			print "Game over: " + general.name + " has conquered Monarch City"
+			sys.exit(0)
+
+	def able_to_move(self):
+		# TODO, actually implement this
+		# not critically wounded
+		# not dead
+		# not blocked by a card?
+		return True
 
 class Crystal:
 	def __init__(self,location):
@@ -158,10 +213,19 @@ class Game:
 		self.crystals = [Crystal(self.unused_crystals)   for _ in range(crystal_count)]
 
 	def initialize_generals(self):
-		self.generals["Sapphire"] = General(self.areas["Blizzard Mountains"],"Sapphire",5)
-		self.generals["Varkalok"] = General(self.areas["Dark Woods"],"Sapphire",5)
-		self.generals["Gorgutt"] = General(self.areas["Thorny Woods"],"Gorgutt",5)
-		self.generals["Blazaarg"] = General(self.areas["Scorpion Canyon"],"Balazaarg",5)
+		sapphire_path = (self.areas["Blizzard Mountains"],self.areas["Heavens Glade"],
+			self.areas["Ancient Ruins"],self.areas["Greenleaf Village"],self.areas["Monarch City"])
+		varkolak_path = (self.areas["Dark Woods"],self.areas["Windy Pass"],
+			self.areas["Seabird Port"],self.areas["Father Oak Forest"],self.areas["Monarch City"])
+		gorgutt_path = (self.areas["Thorny Woods"],self.areas["Amarak Peak"],
+			self.areas["Eagle Peak Pass"],self.areas["Orc Valley"],self.areas["Monarch City"])
+		balazarg_path = (self.areas["Scorpion Canyon"],self.areas["Raven Forest"],
+			self.areas["Angel Tear Falls"],self.areas["Bounty Bay"],self.areas["Monarch City"])
+
+		self.generals["Sapphire"] = General(self.areas["Blizzard Mountains"],sapphire_path,"Sapphire",4,0)
+		self.generals["Varkolak"] = General(self.areas["Dark Woods"],varkolak_path,"Varkolak",5,0)
+		self.generals["Gorgutt"] = General(self.areas["Thorny Woods"],gorgutt_path,"Gorgutt",6,2)
+		self.generals["Blazarg"] = General(self.areas["Scorpion Canyon"],balazarg_path,"Balazarg",6,1)
 
 
 	def initialize_areas(self):
