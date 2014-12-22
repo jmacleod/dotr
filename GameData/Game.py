@@ -1,7 +1,7 @@
-import sys
-import collections
-import StateMachine.GameStates 
-import StateMachine.InputAction
+#import sys
+#import collections
+#import StateMachine.GameStates 
+#import StateMachine.InputAction
 
 colors = ['red','green','blue','black','purple']
 
