@@ -1,6 +1,6 @@
 import random
 import unittest
-from GameData.Game import Game
+from GameData.GameData import GameData
 from StateMachine.StateMachine import StateMachine
 from StateMachine.InputAction import InputAction
 from StateMachine.State import State
@@ -32,7 +32,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_adding_minions(self):
 	print "Test Adding minions to an area"
-	game_data = Game()
+	game_data = GameData()
 	area = game_data.areas["Pleasant Hill"]
         self.assertTrue(len(area.minions) == 0)
 	game_data.add_minion_to_area("red", area)
@@ -43,7 +43,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_max_minions_per_area(self):
 	print "Test max minions per area"
-	game_data = Game()
+	game_data = GameData()
 	area = game_data.areas["Father Oak Forest"]
 	print "Testing that area starts with no minions"
         self.assertTrue(len(area.minions) == 0)
@@ -65,7 +65,7 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_game_ends_when_no_more_minions_to_place(self):
 	print "Test game ends when no more minions to place"
-	game_data = Game()
+	game_data = GameData()
 	area = game_data.areas["Father Oak Forest"]
 	game_data.add_minion_to_area("blue", area)
 	game_data.add_minion_to_area("blue", area)
@@ -75,14 +75,37 @@ class TestSequenceFunctions(unittest.TestCase):
 
     def test_ds_cards(self):
 	print "Test darkness spreads cards"
-	game_data = Game()
+	game_data = GameData()
 	ds_card = game_data.ds_cards[0]
 	ds_card.display()
 	assert(ds_card.general == game_data.generals["Gorgutt"])
 
     def test_state_machine(self):
         test = [InputAction("draw ds card"),InputAction("execute ds card")]
-        print "TEST: " + str(test)
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
+	test.append(InputAction("draw ds card"))
+	test.append(InputAction("execute ds card"))
         for i in test:
             print "\t\t\tMOVE: " + i.action
         GameStates().runAll(test)

@@ -29,22 +29,32 @@ class DarknessSpreadsCard:
 		self.special_actions = special_actions
 
 	def display(self):
-		print self.area1.name  + ": " + str(self.area1_count) + " " + self.area1_color
-		print self.area2.name  + ": " + str(self.area2_count) + " " + self.area2_color
-		print self.general.name  + ": " + self.general_move_to_area.name + " " + str(self.general_minion_count) + " " + self.general_minion_color
+		print "---------------------"
+		if self.area1:
+			print self.area1.name  + ": " + str(self.area1_count) + " " + self.area1_color
+		else:
+			print "SPECIAL CARD"
+		if self.area2:
+			print self.area2.name  + ": " + str(self.area2_count) + " " + self.area2_color
+		if self.general_move_to_area == "Any":
+			print self.general.name  + ": Any " + str(self.general_minion_count) + " " + self.general_minion_color
+		else:
+			print self.general.name  + ": " + self.general_move_to_area.name + " " + str(self.general_minion_count) + " " + self.general_minion_color
+		print "---------------------"
 
-	def execute(self):
+	def execute(self, game_data):
 		if self.special_actions != False:
 			for action in self.special_actions:
 				action
 		for x in range (0, self.area1_count):
-			add_minion_to_area(self.area1_color, self.area1)
+			game_data.add_minion_to_area(self.area1_color, self.area1)
 		for x in range (0, self.area2_count):
-			add_minion_to_area(self.area2_color, self.area2)
+			game_data.add_minion_to_area(self.area2_color, self.area2)
 		if (self.general):
-			self.general.move(self.general_move_to_area)
-			for x in range (0, self.general_minion_count):
-				add_minion_to_area(self.general_minion_color ,self.general_move_to_area)
+			new_area = self.general.move(self.general_move_to_area)
+			if new_area:
+				for x in range (0, self.general_minion_count):
+					game_data.add_minion_to_area(self.general_minion_color, new_area)
 		
 
 class General:
@@ -59,22 +69,28 @@ class General:
 
 	def move(self, move_to_area):
 		if (self.able_to_move() == False):
-			return
+			return False
+		print "Moving General " + self.name + " from " + self.location.name
 		if (move_to_area == "Any"):
 			self.location.general = False #TODO, maybe fix this to work as list in case 2 generals in dame location?
-			self.location = path[path.index(location) +1]
-			self.location.general.append(self)
-		elif (move_to_area in path):
-			if (path.index(self.location) + 1 == path.index(move_to_area)):
+			self.location = self.path[self.path.index(self.location) +1]
+			self.location.general.add(self)
+			print "Moved General " + self.name + " to " + self.location.name
+			return self.location
+		elif (move_to_area in self.path):
+			if (self.path.index(self.location) + 1 == self.path.index(move_to_area)):
 					self.location.general = False #TODO, maybe fix this to work as list in case 2 generals in dame location?
 					self.location = move_to_area
-					move_to_area.general.append(self)
+					move_to_area.general.add(self)
+					print "Moved General " + self.name + " to " + self.location.name
+					return self.location
 		else:
 			raise Exception("Trying to move a general somewhere?")
 			
 		if (self.location.name == "Monarch City"):
 			print "Game over: " + general.name + " has conquered Monarch City"
 			sys.exit(0)
+		return False
 
 	def able_to_move(self):
 		# TODO, actually implement this
@@ -149,21 +165,22 @@ class action:
 	def __init__(self,name,function,*args):
 		self.action=function(*args)
 
-class GameController:
-	def __init__(self):
-		self.possible_actions = None
-		self.allowed_actions  = None
+# TODO delete this class
+#class GameController:
+#	def __init__(self):
+#		self.possible_actions = None
+#		self.allowed_actions  = None
+#
+#		self.initialize_actions()
+#		self.game_data = Game()
+#
+##	
+#		
+#	def initialize_actions(self):
+#		self.possible_actions["goto_next_phase"] = game_data.advance_phase 
+#
 
-		self.initialize_actions()
-		self.game_data = Game()
-
-	
-		
-	def initialize_actions(self):
-		self.possible_actions["goto_next_phase"] = game_data.advance_phase 
-
-
-class Game:
+class GameData:
 	def __init__(self):
 		self.minions = dict()
 		self.minions["red"]   = None;
@@ -279,7 +296,7 @@ class Game:
 				DarknessSpreadsCard(False, False, 0,
 							False, False, 0,
 							self.generals["Sapphire"],self.areas["Monarch City"],
-							"blue", 0, self.orc_war_party),
+							"blue", 0, [self.orc_war_party]),
 				DarknessSpreadsCard(self.areas["Rock Bridge Pass"], "blue", 2,
 							self.areas["Angel Tear Falls"], "black", 1,
 							self.generals["Balazarg"],self.areas["Angel Tear Falls"],
@@ -528,6 +545,7 @@ class Game:
 
 	def add_minion_to_area(self,color, area, overrun_triggered = False):
 		# TODO if unused piles have no minions left, than check if they are on quest cards
+		print "Adding " + color + " minion to " + area.name
 		taint_done = False
 		if (area.name == 'Monarch City'): # so no overflow or taint, but we could lose the game if there are 5
 			if (len(area.minions) >=5):

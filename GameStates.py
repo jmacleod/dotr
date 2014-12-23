@@ -1,16 +1,19 @@
 from StateMachine.State import State
 from StateMachine.StateMachine import StateMachine
 from StateMachine.InputAction import InputAction
+from GameData.GameData import GameData
 
 class StateT(State):
     state_stack = list()
+    game_data = GameData()
+
     def __init__(self):
         self.transitions = None
     def next(self, input):
         if self.transitions.has_key(input):
             return self.transitions[input]
         else:
-            raise "Input not supported for current state"
+            raise Exception("Input not supported for current state")
 
 class NightBegins(StateT):
     def run(self):
@@ -29,6 +32,8 @@ class NightBegins(StateT):
 class DrawDSCard(StateT):
     def run(self):
         print("Darkness Spreads drawing card")
+	StateT.current_ds_card = StateT.game_data.ds_cards.pop()
+	StateT.current_ds_card.display()
 	print "STACK: " + str(StateT.state_stack)
     def next(self, input):
         StateT.state_stack.append(self)
@@ -45,14 +50,16 @@ class DrawDSCard(StateT):
 class ExecuteDSCard(StateT):
     def run(self):
         print("Darkness Spreads - executing card")
+	StateT.current_ds_card.execute(StateT.game_data)
 	print "STACK: " + str(StateT.state_stack)
     def next(self, input):
+        StateT.state_stack.append(self)
         if not self.transitions:
             self.transitions = {
               InputAction.getGameData : GameStates.nightBegins,
               InputAction.playHeroCard : GameStates.nightBegins,
-              InputAction.PlayQuestCard : GameStates.nightBegins,
-              InputAction.DrawDSCard : GameStates.drawDSCard,
+              InputAction.playQuestCard : GameStates.nightBegins,
+              InputAction.drawDSCard : GameStates.drawDSCard,
               InputAction.advanceToDay : GameStates.dayBegins,
             }
         return StateT.next(self, input)
